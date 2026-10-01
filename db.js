@@ -2,7 +2,7 @@ import pkg from "pg";
 import config from "./db_config.js";
 import express from "express";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 
 const secretKey = "tinchito"
 const app = express()
@@ -14,13 +14,16 @@ const { Client } = pkg;
 const client = new Client(config);
 await client.connect();
 
+app.use(express.json());
+
 //endpoint 1 CREAR
 app.post("/crearusuario", async (req, res)=>{
-    const { nombre, password } = req.body;
+    const nombre = req.body.nombre;
+    const password = req.body.password;
 //hashear la contraseña
-    password_hashed = await bcrypt.hash(password,10)
-    await query("INSERT INTO usuario (nombre, password) VALUES ($1, $2)", [nombre, password_hashed]);
-    res.status(201).json({ nombre, password });
+    let password_hashed = await bcrypt.hash(password,10)
+    await client.query("INSERT INTO usuario (nombre, password) VALUES ($1, $2)", [nombre, password_hashed]);
+    res.status(201);
 })
 //endpoint 2 login
 app.get("/login", async(req,res)=>
@@ -28,7 +31,7 @@ app.get("/login", async(req,res)=>
     /// SEGUIR CON ESTO
     const { id, password } = req.body
     //poner password hasher
-    const user_data = await query("SELECT password, nombre FROM usuario WHERE id = $1", [id]);
+    const user_data = await client.query("SELECT password, nombre FROM usuario WHERE id = $1", [id]);
     const passOK = await bcrypt.compare(password,user_data.rows[0].password);
     if (passOK){
         const payload = {
@@ -49,7 +52,7 @@ app.get("/escucho", async(req,res)=>{
     try {
         let payloadOriginal = await jwt.verify(token, secretKey);
         let user_id = payloadOriginal.id;
-        let result = await query("SELECT cancion.nombre FROM escucha WHERE usuario_id = $1 INNER JOIN cancion ON cancion.id = escucha.id",[user_id]);
+        let result = await client.query("SELECT cancion.nombre FROM escucha WHERE usuario_id = $1 INNER JOIN cancion ON cancion.id = escucha.id",[user_id]);
         res.send(result.rows);
     }
     catch(error) {console.log("Error en el token: ", error.message); res.status(401).send(error.message)}
@@ -61,7 +64,7 @@ app.get("/escucho", async(req,res)=>{
 const server = app.listen(port,()=>{
     console.log(`Listening on http://localhost:${port}`); //CHEQUEAR
 })
-await client.end()
+//await client.end()
 
 
 export { app, server };
