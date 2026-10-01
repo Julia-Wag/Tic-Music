@@ -47,7 +47,7 @@ app.post("/login", async (req, res) => {
     }
 });
 
-app.get("/escucho", async(req,res)=>{
+app.post("/escucho", async(req,res)=>{
     const token = req.body.token;
     try {
         let payloadOriginal = await jwt.verify(token, secretKey);
@@ -65,9 +65,11 @@ app.get("/escucho", async(req,res)=>{
 
 
 
-const server = app.listen(port,()=>{
-    console.log(`Listening on http://localhost:${port}`); //CHEQUEAR
-})
+if (!process.env.VERCEL) {
+    app.listen(port, () => {
+        console.log(`Listening on http://localhost:${port}`);
+    });
+}
 //await client.end()
 
 
