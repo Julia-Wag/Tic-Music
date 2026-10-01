@@ -8,6 +8,8 @@ const secretKey = "tinchito"
 const app = express()
 const port = 3000;
 
+console.log(port)
+
 const { Client } = pkg;
 const client = new Client(config);
 await client.connect();
@@ -38,7 +40,7 @@ app.get("/login", async(req,res)=>
         const token = jwt.sign(payload, secretKey, options)
         res.send(token)
     }
-    else res.send() //llenar con error
+    else res.status(401).send("Usuario o contraseña incorrecta") //llenar con error
 })
 
 app.get("/escucho", async(req,res)=>{
@@ -46,18 +48,18 @@ app.get("/escucho", async(req,res)=>{
     let payloadOriginal = null;
     try {
         let payloadOriginal = await jwt.verify(token, secretKey);
+        let user_id = payloadOriginal.id;
+        let result = await query("SELECT cancion.nombre FROM escucha WHERE usuario_id = $1 INNER JOIN cancion ON cancion.id = escucha.id",[user_id]);
+        res.send(result.rows);
     }
-    catch(error) {console.log("Error en el token: ", error.message)}
-    let user_id = payloadOriginal.id;
-    let result = await query("SELECT cancion.nombre FROM escucha WHERE usuario_id = $1 INNER JOIN cancion ON cancion.id = escucha.id",[user_id]);
-    res.send(result.rows);
+    catch(error) {console.log("Error en el token: ", error.message); res.status(401).send(error.message)}
 })
 
 
 
 
 const server = app.listen(port,()=>{
-    console.log("Listening on http://localhost:${port}"); //CHEQUEAR
+    console.log(`Listening on http://localhost:${port}`); //CHEQUEAR
 })
 await client.end()
 
