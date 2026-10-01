@@ -18,41 +18,45 @@ app.use(express.json());
 
 //endpoint 1 CREAR
 app.post("/crearusuario", async (req, res)=>{
-    const nombre = req.body.nombre;
-    const password = req.body.password;
-//hashear la contraseña
-    let password_hashed = await bcrypt.hash(password,10)
-    await client.query("INSERT INTO usuario (nombre, password) VALUES ($1, $2)", [nombre, password_hashed]);
-    res.status(201);
+const { userid, nombre, password } = req.body;
+const password_hashed = await bcrypt.hash(password, 10);
+await client.query("INSERT INTO usuario (id, nombre, password) VALUES ($1, $2, $3)", [userid, nombre, password_hashed]);
+res.status(201).send("Usuario creado");
 })
+
 //endpoint 2 login
-app.get("/login", async(req,res)=>
-{
-    /// SEGUIR CON ESTO
-    const { id, password } = req.body
-    //poner password hasher
-    const user_data = await client.query("SELECT password, nombre FROM usuario WHERE id = $1", [id]);
-    const passOK = await bcrypt.compare(password,user_data.rows[0].password);
-    if (passOK){
-        const payload = {
-            id: id,
-            username: user_data.rows[0].nombre
-        }
-        const secretKey = secretKey;
-        const options = {expiresIn: "1h", issuer: "Tinchito2"}
-        const token = jwt.sign(payload, secretKey, options)
-        res.send(token)
+app.post("/login", async (req, res) => {
+    const { userid, password } = req.body;
+    const user_data = await client.query("SELECT password, nombre FROM usuario WHERE id = $1", [userid]);
+
+    if (user_data.rows.length === 0) {
+        return res.status(401).send("Usuario o contraseña incorrecta");
     }
-    else res.status(401).send("Usuario o contraseña incorrecta") //llenar con error
-})
+
+    const passOK = await bcrypt.compare(password, user_data.rows[0].password);
+    if (passOK) {
+        const payload = {
+            id: userid,
+            username: user_data.rows[0].nombre
+        };
+        const options = { expiresIn: "1h", issuer: "Tinchito2" };
+        const token = jwt.sign(payload, secretKey, options);
+        res.send(token);
+    } else {
+        res.status(401).send("Usuario o contraseña incorrecta");
+    }
+});
 
 app.get("/escucho", async(req,res)=>{
     const token = req.body.token;
-    let payloadOriginal = null;
     try {
         let payloadOriginal = await jwt.verify(token, secretKey);
         let user_id = payloadOriginal.id;
-        let result = await client.query("SELECT cancion.nombre FROM escucha WHERE usuario_id = $1 INNER JOIN cancion ON cancion.id = escucha.id",[user_id]);
+        let result = await client.query(
+    `SELECT cancion.nombre, escucha.reproducciones
+    FROM escucha
+    INNER JOIN cancion ON cancion.id = escucha.cancion_id
+    WHERE escucha.usuario_id = $1`, [user_id]);
         res.send(result.rows);
     }
     catch(error) {console.log("Error en el token: ", error.message); res.status(401).send(error.message)}
@@ -67,4 +71,4 @@ const server = app.listen(port,()=>{
 //await client.end()
 
 
-export { app, server };
+export default app;
