@@ -4,7 +4,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const secretKey = "tinchito"
+const secretKey = process.env.JWT_SECRET || "tinchito";
 const app = express()
 const port = 3000;
 
