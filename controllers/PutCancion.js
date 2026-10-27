@@ -7,3 +7,4 @@ async function PutCancion(req,res){
     }
     catch (error){ res.status(501).send("Database error")}
 }
+export default PutCancion;

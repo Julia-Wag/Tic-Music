@@ -8,3 +8,4 @@ async function CrearUsuario (req, res){
     CreateUserQuery(userid, nombre, password_hashed)
     res.status(200);
     }
+    export default CrearUsuario;

@@ -13,7 +13,4 @@ else {
     return;
 }
 }
-
-
-        
-    
+export default EscuchoQuery;    

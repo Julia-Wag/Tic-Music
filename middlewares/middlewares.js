@@ -18,3 +18,4 @@ function verificarAdmin(req, res, next){
         res.status(403).send("Acción no autorizada")
     }
 }
+export { verificarToken, verificarAdmin };

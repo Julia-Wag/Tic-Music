@@ -5,3 +5,4 @@ export async function LoginQuery(userid){
 await client.query("SELECT password, nombre FROM usuario WHERE id = $1", [userid]);
 return
 }
+export default LoginQuery;

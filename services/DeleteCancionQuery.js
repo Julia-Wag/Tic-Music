@@ -5,3 +5,4 @@ export async function DeleteCancionQuery(id){
     await client.query("DELETE FROM canciones WHERE id = $1",[id])
     return;
 }
+export default DeleteCancionQuery;

@@ -17,3 +17,4 @@ async function Login(req, res){
             res.status(401).send("Usuario o contraseña incorrecta");
         }
     }
+    export default Login;

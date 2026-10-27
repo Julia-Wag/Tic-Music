@@ -7,3 +7,4 @@ try {
 }
 catch (error){ res.status(501).send("Database error")}
 }
+export default PostCancion;
