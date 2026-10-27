@@ -1,13 +1,10 @@
 import express from "express";
-const app = express()
+import cancionesRouter from "./routes/cancionesRouter.js";
+import authRouter from "./routes/authRouter.js";
 
-
-
+const app = express();
 const secretKey = process.env.JWT_SECRET || "tinchito";
-
-const port = process.env.PORT;
-
-
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use("/canciones",cancionesRouter)
