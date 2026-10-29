@@ -1,10 +1,9 @@
 import PutCancionQuery from "../services/PutCancionQuery.js";
 
-async function PutCancion(req,res){
+export default async function PutCancion(req,res){
     try {
         await PutCancionQuery(req.body.id, req.body.nombre);
-        res.status(200);
+        res.status(200).send("Canción actualizada");
     }
-    catch (error){ res.status(501).send("Database error")}
+    catch (error){ res.status(500).send(error.message)}
 }
-export default PutCancion;

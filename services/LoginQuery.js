@@ -1,8 +1,5 @@
 import client from "../db.js";
-import pkg from "pg";
 
-export async function LoginQuery(userid){
-await client.query("SELECT password, nombre FROM usuario WHERE id = $1", [userid]);
-return
+export default async function LoginQuery(userid){
+    return await client.query("SELECT password, nombre, rol FROM usuario WHERE id = $1", [userid]);
 }
-export default LoginQuery;

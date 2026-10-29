@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-
+const secretKey = process.env.JWT_SECRET || "tinchito";
 async function verificarToken(req, res, next){
     try{
     let payloadOriginal = await jwt.verify(req.body.token, secretKey);

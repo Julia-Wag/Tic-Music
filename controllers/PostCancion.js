@@ -1,10 +1,9 @@
 import PostCancionQuery from "../services/PostCancionQuery.js";
 
-async function PostCancion(req,res){
-try { 
-    await PostCancionQuery(req.nombre);
-    res.status(200);
+export default async function PostCancion(req,res){
+    try {
+        await PostCancionQuery(req.body.nombre);
+        res.status(201).send("Canción creada");
+    }
+    catch (error){ res.status(500).send(error.message)}
 }
-catch (error){ res.status(501).send("Database error")}
-}
-export default PostCancion;
